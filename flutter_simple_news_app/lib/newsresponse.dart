@@ -7,7 +7,7 @@ class NewsResponse {
 
   factory NewsResponse.fromJson(Map<String, dynamic> json) {
     return NewsResponse(
-      articles: json['articles'],
+      articles: json['articles'].cast<Article>(),
     );
   }
 }
