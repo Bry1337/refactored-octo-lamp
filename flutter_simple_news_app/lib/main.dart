@@ -1,29 +1,8 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_simple_news_app/newsresponse.dart';
-import 'package:http/io_client.dart';
+import 'package:flutter_simple_news_app/data/repository.dart';
+import 'package:scoped_model/scoped_model.dart';
 
-Future<NewsResponse> fetchTopNews() async {
-  bool trustSelfSigned = true;
-  HttpClient httpClient = new HttpClient();
-  httpClient.badCertificateCallback =
-      ((X509Certificate cert, String host, int port) => trustSelfSigned);
-  IOClient ioClient = IOClient(httpClient);
-  final response = await ioClient.get(
-    'https://newsapi.org/v2/top-headlines?country=us&apiKey=174afd1d0c274c4dad5abeca023b8655',
-  );
-
-  if (response.statusCode == 200) {
-    // If the call to the server was successful, parse the JSON.
-    print(json.decode(response.body));
-    return NewsResponse.fromJson(json.decode(response.body));
-  } else {
-    // If that call was not successful, throw an error.
-    throw Exception('Failed to load post');
-  }
-}
+import 'article_list_model.dart';
 
 void main() => runApp(MyApp());
 
@@ -35,33 +14,78 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: MyHomePage(),
+      home: ArticleListModelScreen(Repository()),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class ArticleListModelScreen extends StatefulWidget {
+  final Repository _repository;
+
+  ArticleListModelScreen(this._repository);
+
   @override
-  State<StatefulWidget> createState() => _MyHomePageState();
+  State<StatefulWidget> createState() {
+    return _ArticleListModelScreenState();
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _ArticleListModelScreenState extends State<ArticleListModelScreen> {
+  ArticleListModel _articleListModel;
+
+  @override
+  void initState() {
+    _articleListModel = ArticleListModel(widget._repository);
+    super.initState();
+    _articleListModel.fetchTopNews();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Simple News App'),
-        ),
-        body: Column(
-          children: [
-            RaisedButton(
-              child: Text('Call News Api'),
-              onPressed: fetchTopNews,
-            )
-          ],
-        ),
-      ),
-    );
+    return ScopedModel(
+        model: _articleListModel,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Simple News App'),
+          ),
+          body: SafeArea(
+            child: ScopedModelDescendant<ArticleListModel>(
+              builder: (context, child, model) {
+                if (model.isLoading) {
+                  return _buildLoading();
+                } else {
+                  if (model.articleList != null) {
+                    return _buildContent(model);
+                  } else {
+                    return _buildInit(model);
+                  }
+                }
+              },
+            ),
+          ),
+        ));
   }
+}
+
+Widget _buildInit(ArticleListModel articleListModel) {
+  return Center(
+    child: RaisedButton(
+      child: Text('Fetch Top News'),
+      onPressed: () {
+        articleListModel.fetchTopNews();
+      },
+    ),
+  );
+}
+
+Widget _buildContent(ArticleListModel articleListModel) {
+  return Center(
+    child: Text('Print \n ${articleListModel.articleList.toString()}'),
+  );
+}
+
+Widget _buildLoading() {
+  return Center(
+    child: CircularProgressIndicator(),
+  );
 }
