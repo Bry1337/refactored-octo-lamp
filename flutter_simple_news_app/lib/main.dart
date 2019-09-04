@@ -90,7 +90,7 @@ Widget _buildContent(ArticleListModel articleListModel) {
           elevation: 6.0,
           margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           child: Container(
-            decoration: BoxDecoration(color: Colors.blueGrey),
+            decoration: BoxDecoration(color: Colors.lightGreen),
             child: Center(
               child: ListTile(
                 leading: Image.network(
