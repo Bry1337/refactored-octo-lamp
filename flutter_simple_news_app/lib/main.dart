@@ -79,8 +79,33 @@ Widget _buildInit(ArticleListModel articleListModel) {
 }
 
 Widget _buildContent(ArticleListModel articleListModel) {
-  return Center(
-    child: Text('Print \n ${articleListModel.articleList.toString()}'),
+  return Container(
+    margin: EdgeInsets.all(2.0),
+    child: ListView.builder(
+      itemCount: articleListModel.articleList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return Card(
+          elevation: 6.0,
+          margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          child: Container(
+            decoration: BoxDecoration(color: Colors.blueGrey),
+            child: Center(
+              child: ListTile(
+                leading: Image.network(
+                  articleListModel.articleList[index].urlToImage,
+                  width: 150,
+                  height: 150,
+                ),
+                subtitle: Text(
+                  articleListModel.articleList[index].title,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    ),
   );
 }
 
