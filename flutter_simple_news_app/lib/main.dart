@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_simple_news_app/data/article.dart';
 import 'package:flutter_simple_news_app/data/repository.dart';
+import 'package:flutter_simple_news_app/detail_screen.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import 'article_list_model.dart';
@@ -100,6 +102,8 @@ Widget _buildContent(ArticleListModel articleListModel) {
                   articleListModel.articleList[index].title,
                   style: TextStyle(color: Colors.white),
                 ),
+                onTap: () => _navigateToDetailScreen(
+                    context, articleListModel.articleList[index]),
               ),
             ),
           ),
@@ -113,4 +117,14 @@ Widget _buildLoading() {
   return Center(
     child: CircularProgressIndicator(),
   );
+}
+
+void _navigateToDetailScreen(BuildContext context, Article article) {
+  Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailScreen(
+          article: article,
+        ),
+      ));
 }
